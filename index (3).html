@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>QUICK · Tablero Operativo Crossdocking 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@300;400;500;600&family=Barlow+Semi+Condensed:wght@500;600&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+:root{
+  --azul-dk:#003366;--azul-md:#0057A8;--azul-lt:#1A7ED4;
+  --azul-xl:#D6E4F0;--azul-xxl:#EBF3FB;
+  --gris-dk:#3A3A3A;--gris-md:#6B6B6B;--gris-lt:#C8C8C8;--gris-bg:#F4F6F9;
+  --accent:#0096D6;--border:#D0DCE8;
+  --shadow:0 2px 12px rgba(0,51,102,.10);--shadow-lg:0 8px 32px rgba(0,51,102,.16);
+  --radius:10px;
+  --fh:'Barlow Condensed',sans-serif;--fb:'Barlow',sans-serif;--fs:'Barlow Semi Condensed',sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--gris-bg);color:var(--gris-dk);font-family:var(--fb);font-size:14px;min-height:100vh}
+
+/* LOADER */
+#loader{position:fixed;inset:0;background:var(--azul-dk);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;z-index:999}
+.l-logo{font-family:var(--fh);font-size:52px;font-weight:800;letter-spacing:10px;color:white}
+.l-bar{width:160px;height:3px;background:rgba(255,255,255,.15);border-radius:2px;overflow:hidden}
+.l-fill{height:100%;background:white;border-radius:2px;animation:ld 1.6s ease-in-out infinite}
+@keyframes ld{0%{width:0%;margin-left:0}50%{width:55%;margin-left:22%}100%{width:0%;margin-left:100%}}
+#lmsg{font-family:var(--fs);font-size:11px;color:rgba(255,255,255,.45);letter-spacing:3px}
+
+/* HEADER */
+header{background:var(--azul-dk);height:64px;padding:0 32px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 18px rgba(0,0,0,.28)}
+.brand{display:flex;align-items:center;gap:14px}
+.bmark{width:40px;height:40px;border-radius:9px;background:var(--azul-md);display:flex;align-items:center;justify-content:center;border:1.5px solid rgba(255,255,255,.2)}
+.bmark svg{width:22px;height:22px;fill:white}
+.bname{font-family:var(--fh);font-size:24px;font-weight:800;letter-spacing:4px;color:white}
+.bdesc{font-family:var(--fs);font-size:10px;color:rgba(255,255,255,.5);letter-spacing:2px;margin-top:1px}
+.hdr-r{display:flex;align-items:center;gap:14px}
+.live{display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);padding:5px 13px;border-radius:20px;font-family:var(--fs);font-size:11px;color:rgba(255,255,255,.75);letter-spacing:1px}
+.dlive{width:7px;height:7px;border-radius:50%;background:#4ADE80;animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.7)}}
+#ts{font-size:11px;color:rgba(255,255,255,.4);font-family:var(--fs)}
+
+/* FILTROS */
+.fbar{background:white;border-bottom:1px solid var(--border);padding:13px 32px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.flbl{font-family:var(--fs);font-size:10px;font-weight:600;color:var(--gris-md);letter-spacing:1.5px;text-transform:uppercase;white-space:nowrap}
+select{font-family:var(--fb);font-size:13px;border:1.5px solid var(--border);border-radius:7px;padding:7px 28px 7px 11px;background:white;color:var(--gris-dk);cursor:pointer;outline:none;transition:border-color .2s;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='7' viewBox='0 0 11 7'%3E%3Cpath d='M1 1l4.5 4.5L10 1' stroke='%236B6B6B' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 9px center}
+select:focus{border-color:var(--azul-md)}
+.btn-r{font-family:var(--fs);font-size:11px;font-weight:600;padding:7px 15px;border-radius:7px;border:1.5px solid var(--azul-xl);background:var(--azul-xxl);color:var(--azul-md);cursor:pointer;transition:all .15s}
+.btn-r:hover{background:var(--azul-xl)}
+.fdiv{width:1px;height:26px;background:var(--border)}
+
+/* MAIN */
+main{padding:24px 32px;display:grid;gap:20px}
+
+/* KPIs */
+.kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:14px}
+.kpi{background:white;border-radius:var(--radius);border:1px solid var(--border);padding:20px 22px;position:relative;overflow:hidden;box-shadow:var(--shadow);transition:transform .2s,box-shadow .2s}
+.kpi:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg)}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.kpi.a::before{background:var(--azul-dk)}.kpi.b::before{background:var(--azul-md)}
+.kpi.c::before{background:var(--azul-lt)}.kpi.d::before{background:var(--accent)}
+.kpi.e::before{background:var(--gris-md)}
+.kpi-ico{width:32px;height:32px;border-radius:7px;display:flex;align-items:center;justify-content:center;margin-bottom:11px;font-size:15px}
+.kpi.a .kpi-ico{background:var(--azul-xxl)}.kpi.b .kpi-ico{background:#E4EEFB}
+.kpi.c .kpi-ico{background:#DDF0FF}.kpi.d .kpi-ico{background:#D8F4FF}
+.kpi.e .kpi-ico{background:var(--gris-bg)}
+.kpi-lbl{font-family:var(--fs);font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--gris-md);margin-bottom:5px}
+.kpi-val{font-family:var(--fh);font-size:40px;font-weight:800;color:var(--azul-dk);line-height:1;letter-spacing:-1px}
+.kpi-sub{font-size:11px;color:var(--gris-lt);margin-top:4px;font-family:var(--fs)}
+
+/* CARDS */
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.row3{display:grid;grid-template-columns:3fr 2fr;gap:20px}
+.card{background:white;border-radius:var(--radius);border:1px solid var(--border);padding:22px 24px;box-shadow:var(--shadow)}
+.card-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.card-ttl{font-family:var(--fh);font-size:15px;font-weight:700;letter-spacing:1px;color:var(--azul-dk);text-transform:uppercase;display:flex;align-items:center;gap:8px}
+.ttl-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.cw{position:relative;height:260px}.cw.tall{height:320px}
+
+/* TABS */
+.tabs{display:flex;gap:4px}
+.tab{font-family:var(--fs);font-size:11px;font-weight:600;padding:5px 11px;border-radius:5px;cursor:pointer;border:1.5px solid var(--border);color:var(--gris-md);background:white;transition:all .15s}
+.tab.on{background:var(--azul-dk);color:white;border-color:var(--azul-dk)}
+.tab:hover:not(.on){border-color:var(--azul-md);color:var(--azul-md)}
+
+/* TABLE */
+.tw{overflow:auto;max-height:280px}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+thead th{font-family:var(--fs);font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--gris-md);padding:9px 13px;border-bottom:2px solid var(--azul-xl);background:white;position:sticky;top:0;z-index:1;text-align:left}
+tbody tr{border-bottom:1px solid rgba(208,220,232,.45);transition:background .1s}
+tbody tr:hover{background:var(--azul-xxl)}
+tbody td{padding:9px 13px}
+.tu{font-family:var(--fs);font-weight:700;color:var(--azul-dk);text-align:right}
+.tc{color:var(--azul-md);font-weight:500}
+.tp{font-family:var(--fs);font-size:11px;color:var(--gris-md);text-align:right}
+
+/* RANGO */
+.rango{background:var(--azul-xxl);border:1px solid var(--azul-xl);border-radius:8px;padding:10px 16px;font-family:var(--fs);font-size:12px;color:var(--azul-dk);display:flex;gap:24px;align-items:center;flex-wrap:wrap}
+.rango strong{font-weight:600}
+
+/* MISC */
+.err{background:#FEF2F2;border:1px solid #FECACA;border-radius:10px;padding:18px 20px;color:#7F1D1D;font-family:var(--fs);font-size:13px;line-height:1.6}
+#cfg-btn{position:fixed;bottom:20px;right:20px;background:var(--azul-dk);color:rgba(255,255,255,.6);border:none;border-radius:8px;padding:9px 14px;font-family:var(--fs);font-size:11px;cursor:pointer;z-index:50;transition:all .2s;box-shadow:var(--shadow)}
+#cfg-btn:hover{color:white;background:var(--azul-md)}
+
+@media(max-width:1100px){.kpi-row{grid-template-columns:repeat(3,1fr)}.row2,.row3{grid-template-columns:1fr}}
+@media(max-width:640px){main,.fbar,header{padding-left:16px;padding-right:16px}.kpi-row{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+
+<div id="loader">
+  <div class="l-logo">QUICK</div>
+  <div class="l-bar"><div class="l-fill"></div></div>
+  <p id="lmsg">CONECTANDO CON GOOGLE SHEETS · · ·</p>
+</div>
+
+<header>
+  <div class="brand">
+    <div class="bmark"><svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
+    <div>
+      <div class="bname">QUICK</div>
+      <div class="bdesc">Tablero Operativo · Crossdocking 2026</div>
+    </div>
+  </div>
+  <div class="hdr-r">
+    <span id="ts">–</span>
+    <div class="live"><div class="dlive"></div>EN VIVO</div>
+  </div>
+</header>
+
+<div class="fbar">
+  <span class="flbl">Filtrar</span>
+  <select id="fc"><option value="">Todas las ciudades</option></select>
+  <select id="fl"><option value="">Todos los clientes</option></select>
+  <div class="fdiv"></div>
+  <button class="btn-r" onclick="resetF()">↺ Limpiar</button>
+</div>
+
+<main id="mc" style="display:none">
+
+  <!-- Rango operativo -->
+  <div class="rango" id="rango">
+    <span>📅 Período: <strong id="r-inicio">–</strong> → <strong id="r-corte">–</strong></span>
+    <span>🏙️ Ciudad líder: <strong id="r-ciudad">–</strong></span>
+    <span>🤝 Cliente líder: <strong id="r-cliente">–</strong></span>
+  </div>
+
+  <!-- KPIs -->
+  <div class="kpi-row">
+    <div class="kpi a"><div class="kpi-ico">📦</div><div class="kpi-lbl">Total Unidades</div><div class="kpi-val" id="kv0">–</div><div class="kpi-sub">acumulado 2026</div></div>
+    <div class="kpi b"><div class="kpi-ico">📊</div><div class="kpi-lbl">Total Registros</div><div class="kpi-val" id="kv1">–</div><div class="kpi-sub">filas diligenciadas</div></div>
+    <div class="kpi c"><div class="kpi-ico">🏙️</div><div class="kpi-lbl">Ciudades Activas</div><div class="kpi-val" id="kv2">–</div><div class="kpi-sub">con movimientos</div></div>
+    <div class="kpi d"><div class="kpi-ico">🤝</div><div class="kpi-lbl">Clientes Activos</div><div class="kpi-val" id="kv3">–</div><div class="kpi-sub">en operación</div></div>
+    <div class="kpi e"><div class="kpi-ico">🎯</div><div class="kpi-lbl">% Mayor Ciudad</div><div class="kpi-val" id="kv4">–</div><div class="kpi-sub" id="ks4">participación</div></div>
+  </div>
+
+  <!-- Ciudad + Cliente dona -->
+  <div class="row3">
+    <div class="card">
+      <div class="card-hd">
+        <div class="card-ttl"><span class="ttl-dot" style="background:var(--azul-dk)"></span>UNIDADES POR CIUDAD</div>
+        <div class="tabs">
+          <button class="tab on" onclick="swC('bar',this)">Barras</button>
+          <button class="tab" onclick="swC('horizontalBar',this)">Horizontal</button>
+        </div>
+      </div>
+      <div class="cw tall"><canvas id="chc"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-hd">
+        <div class="card-ttl"><span class="ttl-dot" style="background:var(--azul-md)"></span>CLIENTES REPRESENTATIVOS</div>
+      </div>
+      <div class="cw tall"><canvas id="chcl"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Tablas detalle -->
+  <div class="row2">
+    <div class="card">
+      <div class="card-hd">
+        <div class="card-ttl"><span class="ttl-dot" style="background:var(--accent)"></span>DETALLE POR CIUDAD</div>
+      </div>
+      <div class="tw">
+        <table>
+          <thead><tr><th>Ciudad</th><th style="text-align:right">Unidades</th><th style="text-align:right">Registros</th><th style="text-align:right">% Part.</th></tr></thead>
+          <tbody id="tb-ciudad"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-hd">
+        <div class="card-ttl"><span class="ttl-dot" style="background:var(--gris-md)"></span>DETALLE POR CLIENTE</div>
+      </div>
+      <div class="tw">
+        <table>
+          <thead><tr><th>Cliente</th><th style="text-align:right">Unidades</th><th style="text-align:right">% Part.</th></tr></thead>
+          <tbody id="tb-cliente"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<button id="cfg-btn" onclick="doCfg()">⚙ URL Sheet</button>
+
+<script>
+// ── URL DEL SHEET (CONSOLIDADO_GITHUB) ──────────────────────────────────────
+const DEFAULT_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRtrDOmr0chSgiCmXmLCmiAFhLw9Oha-gYHR2-1dzMRXtYE9DFjPUKAAswdKsGCNSJFx9WTo5ILprHK/pub?gid=664587942&single=true&output=csv';
+const SK      = 'quick_sheet_url';
+const REFRESH = 60000;
+
+const PROXIES = [
+  u => u,
+  u => `https://corsproxy.io/?${encodeURIComponent(u)}`,
+  u => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
+];
+
+const BL = ['#003366','#0057A8','#1A7ED4','#0096D6','#4AB3E8','#6EC6F0','#003A75','#004D99','#0068C2','#2589D8','#50A8E0','#7AC0EC','#9DD0F4','#B8DEF7','#003355','#00477A'];
+const GR = ['#3A3A3A','#5A5A5A','#7A7A7A','#9A9A9A','#BABABA'];
+
+let DATA = { ciudades:[], clientes:[], kpis:{} };
+let FILT_CIUDAD = '', FILT_CLIENTE = '';
+let CH = {}, cMode = 'bar';
+
+// ── PARSER DEL CONSOLIDADO ────────────────────────────────────────────────
+function parseConsolidado(txt) {
+  const lines = txt.replace(/\r/g,'').split('\n');
+  const ciudades = [], clientes = [], kpis = {};
+
+  let seccion = '';
+
+  for (let i = 0; i < lines.length; i++) {
+    const cols = splitLine(lines[i]);
+    const c0 = (cols[0]||'').trim();
+    const c1 = (cols[1]||'').trim();
+    const c5 = (cols[5]||'').trim();
+    const c6 = (cols[6]||'').trim();
+
+    // Detectar secciones
+    if (c0 === 'CIUDAD') { seccion = 'ciudad'; continue; }
+    if (c0 === 'KPI')    { seccion = 'kpi';    continue; }
+    if (c0 === 'TOTAL GENERAL' || c0 === 'TOTAL') continue;
+
+    // Sección CIUDAD
+    if (seccion === 'ciudad' && c0 && c1) {
+      const unidades  = parseNum(c1);
+      const registros = parseNum((cols[2]||'').trim());
+      const pct       = (cols[3]||'').trim();
+      if (unidades > 0) {
+        ciudades.push({ ciudad: c0, unidades, registros, pct });
+      }
+      // Leer cliente de cols 5-7 en la misma fila
+      if (c5 && c5 !== 'CLIENTE' && c5 !== 'TOTAL' && c6) {
+        const cu = parseNum(c6);
+        const cp = (cols[7]||'').trim();
+        if (cu > 0) clientes.push({ cliente: c5, unidades: cu, pct: cp });
+      }
+    }
+
+    // KPIs
+    if (seccion === 'kpi' && c0 && c1) {
+      kpis[c0] = c1;
+    }
+  }
+
+  return { ciudades, clientes, kpis };
+}
+
+function parseNum(s) {
+  // Manejar formato colombiano: 27.318 → 27318, 4,8% → ignore
+  if (!s) return 0;
+  s = s.replace(/[%]/g,'').trim();
+  // Si tiene punto como separador de miles (ej: 27.318)
+  if (s.match(/^\d{1,3}(\.\d{3})+$/)) return parseFloat(s.replace(/\./g,''));
+  // Si tiene coma como decimal (ej: 4,8)
+  return parseFloat(s.replace(/\./g,'').replace(',','.')) || 0;
+}
+
+function splitLine(line) {
+  const a=[]; let cur='', q=false;
+  for(let i=0;i<line.length;i++){
+    const c=line[i];
+    if(c==='"')q=!q;
+    else if(c===','&&!q){a.push(cur);cur='';}
+    else cur+=c;
+  }
+  a.push(cur); return a;
+}
+
+// ── FETCH CON PROXY ───────────────────────────────────────────────────────
+async function fetchCSV(url) {
+  for (let pi=0; pi<PROXIES.length; pi++) {
+    const pu = PROXIES[pi](url + (url.includes('?')?'&':'?')+'_='+Date.now());
+    document.getElementById('lmsg').textContent = pi===0 ? 'CONECTANDO · · ·' : `REINTENTANDO (${pi}) · · ·`;
+    try {
+      const r = await fetch(pu, {cache:'no-store'});
+      if (!r.ok) throw new Error('HTTP '+r.status);
+      const txt = await r.text();
+      if (txt.includes('<html')||txt.includes('<!DOCTYPE')) throw new Error('Recibió HTML');
+      return txt;
+    } catch(e) { console.warn('Proxy '+pi+' falló:', e.message); }
+  }
+  throw new Error('No se pudo obtener datos tras '+PROXIES.length+' intentos');
+}
+
+// ── FILTROS ───────────────────────────────────────────────────────────────
+function applyF() {
+  FILT_CIUDAD  = document.getElementById('fc').value;
+  FILT_CLIENTE = document.getElementById('fl').value;
+  render();
+}
+function resetF() {
+  document.getElementById('fc').value = '';
+  document.getElementById('fl').value = '';
+  FILT_CIUDAD = ''; FILT_CLIENTE = '';
+  render();
+}
+function popF() {
+  const cds = DATA.ciudades.map(r=>r.ciudad).sort();
+  const cls = DATA.clientes.map(r=>r.cliente).sort();
+  fillSel('fc', cds);
+  fillSel('fl', cls);
+}
+function fillSel(id, vals) {
+  const s=document.getElementById(id), cur=s.value;
+  while(s.options.length>1) s.remove(1);
+  vals.forEach(v=>s.appendChild(new Option(v,v)));
+  s.value=cur;
+}
+
+// ── DATOS FILTRADOS ───────────────────────────────────────────────────────
+function filteredCiudades() {
+  if (!FILT_CIUDAD) return DATA.ciudades;
+  return DATA.ciudades.filter(r=>r.ciudad===FILT_CIUDAD);
+}
+function filteredClientes() {
+  if (!FILT_CLIENTE) return DATA.clientes;
+  return DATA.clientes.filter(r=>r.cliente===FILT_CLIENTE);
+}
+
+// ── CHARTS ────────────────────────────────────────────────────────────────
+Chart.defaults.font = {family:"'Barlow',sans-serif"};
+Chart.defaults.color = '#6B6B6B';
+const grd = {color:'rgba(0,51,102,.07)'};
+const tk  = {font:{size:11,family:"'Barlow Semi Condensed',sans-serif"}};
+
+function mu(id,cfg){
+  if(CH[id]){CH[id].data=cfg.data;CH[id].options=cfg.options;CH[id].config.type=cfg.type;CH[id].update('none');}
+  else CH[id]=new Chart(document.getElementById(id),cfg);
+}
+
+function rCiudad(){
+  const rows = [...filteredCiudades()].sort((a,b)=>b.unidades-a.unidades);
+  const isH  = cMode==='horizontalBar';
+  mu('chc',{
+    type:'bar',
+    data:{
+      labels:rows.map(r=>r.ciudad),
+      datasets:[{
+        data:rows.map(r=>r.unidades),
+        backgroundColor:rows.map((_,i)=>BL[i%BL.length]+'CC'),
+        borderColor:rows.map((_,i)=>BL[i%BL.length]),
+        borderWidth:1,borderRadius:5
+      }]
+    },
+    options:{
+      indexAxis: isH?'y':'x',
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{
+        x:{grid:isH?grd:{display:false},ticks:{...tk,maxRotation:isH?0:45}},
+        y:{grid:isH?{display:false}:grd,ticks:{font:{size:isH?12:11,family:"'Barlow Semi Condensed',sans-serif"}}}
+      }
+    }
+  });
+}
+
+function rCliente(){
+  const rows=[...filteredClientes()].sort((a,b)=>b.unidades-a.unidades).slice(0,12);
+  const all=[...BL,...GR];
+  mu('chcl',{
+    type:'doughnut',
+    data:{
+      labels:rows.map(r=>r.cliente),
+      datasets:[{
+        data:rows.map(r=>r.unidades),
+        backgroundColor:all.slice(0,rows.length).map(c=>c+'D5'),
+        borderColor:'white',borderWidth:2
+      }]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,cutout:'52%',
+      plugins:{legend:{position:'bottom',labels:{font:{size:10,family:"'Barlow Semi Condensed',sans-serif"},boxWidth:10,padding:8,color:'#3A3A3A'}}}
+    }
+  });
+}
+
+// ── TABLAS ────────────────────────────────────────────────────────────────
+function rTablaCiudad(){
+  const rows=[...filteredCiudades()].sort((a,b)=>b.unidades-a.unidades);
+  const totalU=rows.reduce((s,r)=>s+r.unidades,0);
+  document.getElementById('tb-ciudad').innerHTML=rows.map((r,i)=>`
+    <tr>
+      <td><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${BL[i%BL.length]};margin-right:8px"></span>${r.ciudad}</td>
+      <td class="tu">${r.unidades.toLocaleString('es-CO')}</td>
+      <td class="tp">${r.registros.toLocaleString('es-CO')}</td>
+      <td class="tp">${totalU>0?((r.unidades/totalU)*100).toFixed(1)+'%':'–'}</td>
+    </tr>`).join('');
+}
+
+function rTablaCliente(){
+  const rows=[...filteredClientes()].sort((a,b)=>b.unidades-a.unidades);
+  const totalU=rows.reduce((s,r)=>s+r.unidades,0);
+  const all=[...BL,...GR];
+  document.getElementById('tb-cliente').innerHTML=rows.map((r,i)=>`
+    <tr>
+      <td><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${all[i%all.length]};margin-right:8px"></span><span class="tc">${r.cliente}</span></td>
+      <td class="tu">${r.unidades.toLocaleString('es-CO')}</td>
+      <td class="tp">${totalU>0?((r.unidades/totalU)*100).toFixed(1)+'%':'–'}</td>
+    </tr>`).join('');
+}
+
+// ── KPIs ─────────────────────────────────────────────────────────────────
+function rKPIs(){
+  const cF = filteredCiudades();
+  const clF= filteredClientes();
+  const totalU  = cF.reduce((s,r)=>s+r.unidades,0);
+  const totalR  = cF.reduce((s,r)=>s+r.registros,0);
+  const maxCiud = cF.length ? cF.reduce((a,b)=>a.unidades>b.unidades?a:b) : null;
+  const pctMax  = totalU>0&&maxCiud ? ((maxCiud.unidades/totalU)*100).toFixed(1)+'%' : '–';
+
+  g('kv0').textContent = totalU.toLocaleString('es-CO');
+  g('kv1').textContent = totalR.toLocaleString('es-CO');
+  g('kv2').textContent = cF.filter(r=>r.unidades>0).length;
+  g('kv3').textContent = clF.filter(r=>r.unidades>0).length;
+  g('kv4').textContent = pctMax;
+  g('ks4').textContent = maxCiud ? maxCiud.ciudad : '–';
+
+  // Rango / KPIs globales
+  const kpis = DATA.kpis;
+  g('r-inicio').textContent = kpis['Fecha Inicio'] || '–';
+  g('r-corte').textContent  = kpis['Fecha Corte']  || '–';
+  g('r-ciudad').textContent = kpis['Ciudad Líder'] || (maxCiud?.ciudad||'–');
+  g('r-cliente').textContent= kpis['Cliente Líder']|| '–';
+}
+
+function g(id){return document.getElementById(id)}
+
+// ── RENDER ────────────────────────────────────────────────────────────────
+function render(){
+  rKPIs();
+  rCiudad();
+  rCliente();
+  rTablaCiudad();
+  rTablaCliente();
+}
+
+function swC(mode,btn){
+  cMode=mode;
+  btn.closest('.tabs').querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  btn.classList.add('on');
+  rCiudad();
+}
+
+['fc','fl'].forEach(id=>document.getElementById(id).addEventListener('change',applyF));
+
+// ── LOAD ──────────────────────────────────────────────────────────────────
+async function load(){
+  const url = localStorage.getItem(SK)||DEFAULT_URL;
+  try {
+    const txt = await fetchCSV(url);
+    DATA = parseConsolidado(txt);
+    console.log('Datos cargados:', DATA.ciudades.length,'ciudades,',DATA.clientes.length,'clientes');
+
+    if(DATA.ciudades.length===0){
+      throw new Error('Se leyó el CSV pero no se encontraron datos de ciudades. Verifica que la hoja publicada sea CONSOLIDADO_GITHUB.');
+    }
+
+    popF(); render();
+    g('ts').textContent='Actualizado '+new Date().toLocaleTimeString('es-CO');
+    g('loader').style.display='none';
+    g('mc').style.display='grid';
+  } catch(e){
+    g('loader').style.display='none';
+    g('mc').style.display='grid';
+    g('mc').insertAdjacentHTML('afterbegin',
+      `<div class="err"><strong>⚠ ${e.message}</strong><br><br>
+      Pasos para resolver:<br>
+      1. En Google Sheets: <strong>Archivo → Publicar en la web</strong><br>
+      2. Selecciona la hoja <strong>CONSOLIDADO_GITHUB</strong><br>
+      3. Formato: <strong>CSV (.csv)</strong><br>
+      4. Copia la URL y haz clic en <strong>⚙ URL Sheet</strong> para actualizarla.
+      </div>`);
+  }
+}
+function doCfg(){
+  const u=prompt('URL CSV Google Sheets (hoja CONSOLIDADO_GITHUB):',localStorage.getItem(SK)||DEFAULT_URL);
+  if(u!==null){localStorage.setItem(SK,u.trim());location.reload();}
+}
+
+load();
+setInterval(load,REFRESH);
+</script>
+</body>
+</html>
